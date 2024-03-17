@@ -51,24 +51,22 @@ while cap.isOpened():
     if not ret:
         print("No more frame to detect")
         break
-    if frame_count >= skip_frame:
-        frame_count = 0
+    
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    pilimg = Image.fromarray(frame)
+    detections = detect_image(pilimg)
+    if detections is not None:
         
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        pilimg = Image.fromarray(frame)
-        detections = detect_image(pilimg)
-        if detections is not None:
-            
-            tracked_objects = mot_tracker.update(detections)
+        tracked_objects = mot_tracker.update(detections)
 
-            for x1, y1, x2, y2, cls_pred, id in tracked_objects:
-                x1, x2, y1, y2 = int(x1), int(x2), int(y1), int(y2)
-                cls = classes[int(cls_pred)]
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 4)
-                # cv2.rectangle(frame, (x1, y1-35), (x1+len(cls)*19+60, y1), color, -1)
-                cv2.putText(frame, cls+' '+str(int(id)), (x1, y1 + 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
-        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        cv2.imshow("frame", frame)
-        
-        cv2.waitKey(1)
+        for x1, y1, x2, y2, cls_pred, id in tracked_objects:
+            x1, x2, y1, y2 = int(x1), int(x2), int(y1), int(y2)
+            cls = classes[int(cls_pred)]
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 4)
+            # cv2.rectangle(frame, (x1, y1-35), (x1+len(cls)*19+60, y1), color, -1)
+            cv2.putText(frame, cls+' '+str(int(id)), (x1, y1 + 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    cv2.imshow("frame", frame)
+    
+    cv2.waitKey(1)
 print("Done processing video")
