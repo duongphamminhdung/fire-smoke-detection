@@ -6,6 +6,7 @@ from PIL import Image
 import torch
 from google.colab.patches import cv2_imshow
 import os
+import time
 # from threading import Thread
 # import time
 
@@ -51,6 +52,7 @@ t = 0
 os.makedirs('test', exist_ok = True)
 out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 46, (frame_width,frame_height))
 while cap.isOpened():
+    start = time.time()
     ret, frame = cap.read()
     t += 1
     frame_count += 1
@@ -58,25 +60,24 @@ while cap.isOpened():
         out.release()
         print("No more frame to detect")
         break
-    if frame_count >= skip_frame:
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        pilimg = Image.fromarray(frame)
-        detections = detect_image(pilimg)
-        if detections is not None:
-            frame_count = 0
-            tracked_objects = mot_tracker.update(detections)
-            # import pdb; pdb.set_trace()
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    pilimg = Image.fromarray(frame)
+    detections = detect_image(pilimg)
+    if detections is not None:
+        frame_count = 0
+        tracked_objects = mot_tracker.update(detections)
+        # import pdb; pdb.set_trace()
 
-            for x1, y1, x2, y2, id, cls_pred in tracked_objects:
-                x1, x2, y1, y2 = int(x1), int(x2), int(y1), int(y2)
-                cls = classes[int(cls_pred)]
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 4)
-                # cv2.rectangle(frame, (x1, y1-35), (x1+len(cls)*19+60, y1), color, -1)
-                cv2.putText(frame, cls+" "+ str(int(id)), (x1, y1 + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            cv2.imwrite("test/frame"+str(t)+'.jpg', frame)
+        for x1, y1, x2, y2, id, cls_pred in tracked_objects:
+            x1, x2, y1, y2 = int(x1), int(x2), int(y1), int(y2)
+            cls = classes[int(cls_pred)]
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 4)
+            # cv2.rectangle(frame, (x1, y1-35), (x1+len(cls)*19+60, y1), color, -1)
+            cv2.putText(frame, cls+" "+ str(int(id)), (x1, y1 + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        # cv2.imwrite("test/frame"+str(t)+'.jpg', frame)
 
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        out.write(frame)
+    out.write(frame)
             # import pdb; pdb.set_trace()
 print("Done processing video")
 out.release()
