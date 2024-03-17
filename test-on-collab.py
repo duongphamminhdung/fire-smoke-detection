@@ -77,6 +77,9 @@ while cap.isOpened():
         # cv2.imwrite("test/frame"+str(t)+'.jpg', frame)
 
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    end = time.time()
+    fps = 1/(end-start)
+    cv2.putText(frame, "fps: "+fps, (0, 0), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     out.write(frame)
             # import pdb; pdb.set_trace()
 print("Done processing video")
