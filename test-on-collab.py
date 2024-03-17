@@ -64,7 +64,6 @@ while cap.isOpened():
     pilimg = Image.fromarray(frame)
     detections = detect_image(pilimg)
     if detections is not None:
-        frame_count = 0
         tracked_objects = mot_tracker.update(detections)
         # import pdb; pdb.set_trace()
 
@@ -79,7 +78,8 @@ while cap.isOpened():
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     end = time.time()
     fps = 1/(end-start)
-    cv2.putText(frame, "fps: "+fps, (0, 0), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    cv2.putText(frame, "fps: "+str(fps)[:4], (00, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    cv2.imwrite('test/'+str(frame_count)+'.jpg', frame)
     out.write(frame)
             # import pdb; pdb.set_trace()
 print("Done processing video")
