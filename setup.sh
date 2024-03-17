@@ -1,5 +1,6 @@
 pip install -r requirements.txt
-# wget https://github.com/steffensbola/furg-fire-dataset/raw/master/Car1.mp4 -O test.mp4
+
+wget https://github.com/steffensbola/furg-fire-dataset/raw/master/Car1.mp4 -O test.mp4
 
 wget https://drive.google.com/uc?id=1WlV0km_w0DjAbDCrCBYvZc211S5tMKIZ -O /root/fire-smoke-detection/test.jpg
 wget https://drive.google.com/uc?id=1_EYUmnBE3a3PP0_f71VFBMESSsxv43m2 -O /root/fire-smoke-detection/best.pt
