@@ -268,7 +268,7 @@ def parse_args():
                         help="Minimum number of associated detections before track is initialised.", 
                         type=int, default=3)
     parser.add_argument("--iou_threshold", help="Minimum IOU for match.", type=float, default=0.3)
-    parser.add_argument("--skip-frame", help="frame to skip in detection", type=float, default=10)
+    parser.add_argument("--sleep_time", help="waiting time between alarms sent to phone, in seconds ", type=float, default=45)
     args = parser.parse_args()
     return args
 

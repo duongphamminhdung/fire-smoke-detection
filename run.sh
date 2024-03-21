@@ -5,4 +5,4 @@ python test-on-collab.py \
         --max_age 7 \
         --min_hits 4 \
         --iou_threshold 0.3 \
-        --skip-frame 5
+        --sleep_time 45

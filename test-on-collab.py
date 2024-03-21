@@ -32,7 +32,6 @@ args = parse_args()
 name = args.name
 model_path = args.model_path
 video_path = args.video_path
-skip_frame = args.skip_frame
 
 model = YOLO(model_path)
 mot_tracker = Sort(max_age=args.max_age, 
