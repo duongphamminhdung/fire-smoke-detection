@@ -7,6 +7,12 @@ import torch
 from google.colab.patches import cv2_imshow
 import os
 import time
+from multiprocessing import Process
+from multiprocessing import Pool
+from threading import Thread
+from ultralytics import YOLO
+# from telebot_utils.bot import sign_handler
+
 # from threading import Thread
 # import time
 
@@ -41,7 +47,7 @@ if video_path.isnumeric():
     cap = cv2.VideoCapture(int(video_path))
 else:
     cap = cv2.VideoCapture(video_path)
-
+print(video_path)
 ret, frame = cap.read()
 classes = ["Fire", "Default", "Smoke"]
 frame_height, frame_width, _ = frame.shape
@@ -50,16 +56,22 @@ t = 0
 
 os.makedirs('test', exist_ok = True)
 out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 46, (frame_width,frame_height))
-while cap.isOpened():
-    start = time.time()
-    ret, frame = cap.read()
-    t += 1
-    frame_count += 1
-    if not ret:
-        out.release()
-        print("No more frame to detect")
-        break
+
+# class CustomProcess(Process):
+#     def __init__(self,sleep_time):
+#         Process.__init__(self)
+#         self.sleep_time = sleep_time    
+#     def run_thread(self, text):
+#         thread = Thread(target=sign_handler, args=(text, ))
+#         thread.start()
+#         time.sleep(self.sleep_time)
+#         thread.join()    
+#     def run(self):
+#         while True:
+#             pass
+def detect_and_update(frame, out):
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
     pilimg = Image.fromarray(frame)
     detections = detect_image(pilimg)
     if detections is not None:
@@ -73,13 +85,30 @@ while cap.isOpened():
             cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 4)
             # cv2.rectangle(frame, (x1, y1-35), (x1+len(cls)*19+60, y1), color, -1)
             cv2.putText(frame, cls+" "+ str(int(id)), (x1, y1 + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        # cv2.imwrite("test/frame"+str(t)+'.jpg', frame)
-
-        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     end = time.time()
     fps = 1/(end-start)
-    cv2.putText(frame, "fps: "+fps, (0, 0), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    out.write(frame)
-            # import pdb; pdb.set_trace()
-print("Done processing video")
-out.release()
+    cv2.putText(frame, "fps: "+str(fps)[:3], (0, 0), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    out.write(frame)     
+           
+fire_text = "ALARM, FIRE detected in your camera"
+smoke_text = "ALARM, SMOKE detected in your camera"
+processes = []
+if __name__ == '__main__':
+    while cap.isOpened():
+        start = time.time()
+        ret, frame = cap.read()
+        t += 1
+        frame_count += 1
+        if not ret:
+            out.release()
+            print("No more frame to detect")
+            break
+        if len(processes) >= 3:
+            processes[0].join()
+            processes.pop(0)
+        processes.append(Process(target=detect_and_update, args=(frame, out, )))
+        processes[-1].start()
+
+    print("Done processing video")
+    out.release()
