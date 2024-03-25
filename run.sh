@@ -1,8 +1,8 @@
-python test-on-collab.py \
+python tracking.py \
         --name FIRE-ALARM \
         --model_path best.pt \
         --video_path test.mp4 \
         --max_age 7 \
         --min_hits 4 \
         --iou_threshold 0.3 \
-        --sleep_time 45
+        --sleep_time 10

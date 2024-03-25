@@ -11,10 +11,11 @@ def send_welcome(message):
     bot.reply_to(message, "your chat_id is"+message.chat.id)
     
 @bot.message_handler(commands=['test'])
-def sign_handler(text):
+def send_mes(text):
     bot.send_message(chat_id, text, parse_mode="Markdown")
     # bot.register_next_step_handler(sent_msg, day_handler)
-
+def send_im(img):
+    bot.send_photo(chat_id, img, parse_mode="Markdown")
 # @bot.message_handler(func=lambda msg: True)
 # def echo_all(message):
 #     bot.reply_to(message, message.text)

@@ -1,25 +1,29 @@
 from sort import *
 from multiprocessing import Process
+import multiprocessing
 from threading import Thread
 from ultralytics import YOLO
 import cv2
 from PIL import Image
 import torch
-from telebot_utils.bot import sign_handler
+from telebot_utils.bot import send_mes, send_im
+import os
 # from threading import Thread
 # import time
 class CustomProcess(Process):
     def __init__(self,sleep_time):
         Process.__init__(self)
-        self.sleep_time = sleep_time    
-    def run_thread(self, text):
-        thread = Thread(target=sign_handler, args=(text, ))
-        thread.start()
-        time.sleep(self.sleep_time)
-        thread.join()    
+        self.sleep_time = sleep_time
+        self.text = 'a.jpg'    
+
     def run(self):
-        while True:
-            pass
+        while True:       
+            if event.is_set():
+                break
+            if self.text != None and os.path.isfile(self.text):
+                send_im(open(self.text, 'rb'))
+                time.sleep(self.sleep_time)
+            
         
 def detect_image(img):
     with torch.no_grad():
@@ -38,14 +42,14 @@ def detect_image(img):
 
     return dets
 
-fire_text = "ALARM, FIRE detected in your camera"
-smoke_text = "ALARM, SMOKE detected in your camera"
+event = multiprocessing.Event()
 
 if __name__ == "__main__":
     
     args = parse_args()
 
     process = CustomProcess(args.sleep_time)
+    process.start()
     name = args.name
     model_path = args.model_path
     video_path = args.video_path
@@ -84,13 +88,9 @@ if __name__ == "__main__":
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 4)
                 # cv2.rectangle(frame, (x1, y1-35), (x1+len(cls)*19+60, y1), color, -1)
                 cv2.putText(frame, cls+' '+str(int(id)), (x1, y1 + 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
-                if cls_pred == 0:
-                    process.run_thread(fire_text)
-                elif cls_pred == 2:
-                    process.run_thread(smoke_text)
-                
+                cv2.imwrite('a.jpg', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        cv2.imshow("frame", frame)
-        
-        cv2.waitKey(1)
     print("Done processing video")
+    event.set()
+    # process.terminate()
