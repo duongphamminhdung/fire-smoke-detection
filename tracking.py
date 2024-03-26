@@ -1,7 +1,5 @@
 from sort import *
 from multiprocessing import Process, Event
-import multiprocessing
-from threading import Thread
 from ultralytics import YOLO
 import cv2
 from PIL import Image
@@ -44,7 +42,6 @@ def detect_image(img):
 
     return dets
 
-event = multiprocessing.Event()
 
 if __name__ == "__main__":
     
@@ -55,7 +52,7 @@ if __name__ == "__main__":
     name = args.name
     model_path = args.model_path
     video_path = args.video_path
-
+    sleep_time = args.sleep_time
     model = YOLO(model_path)
     mot_tracker = Sort(max_age=args.max_age, 
                         min_hits=args.min_hits,
@@ -91,10 +88,9 @@ if __name__ == "__main__":
                 # cv2.rectangle(frame, (x1, y1-35), (x1+len(cls)*19+60, y1), color, -1)
                 cv2.putText(frame, cls+' '+str(int(id)), (x1, y1 + 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
                 cv2.imwrite('a.jpg', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-                if time.time() - time_set >= 10:
+                if time.time() - time_set >= sleep_time:
                     process.set('a.jpg')
                     time_set = time.time()
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     print("Done processing video")
-    event.set()
     # process.terminate()
