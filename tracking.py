@@ -1,5 +1,5 @@
 from sort import *
-from multiprocessing import Process
+from multiprocessing import Process, Event
 import multiprocessing
 from threading import Thread
 from ultralytics import YOLO
@@ -11,18 +11,20 @@ import os
 # from threading import Thread
 # import time
 class CustomProcess(Process):
-    def __init__(self,sleep_time):
+    def __init__(self, sleep_time):
         Process.__init__(self)
         self.sleep_time = sleep_time
-        self.text = 'a.jpg'    
+        self.text = 'a.jpg'
+        self._event = Event()
 
     def run(self):
         while True:       
-            if event.is_set():
-                break
-            if self.text != None and os.path.isfile(self.text):
+            if self._event.is_set() and os.path.isfile(self.text):
                 send_im(open(self.text, 'rb'))
-                time.sleep(self.sleep_time)
+                self._event.clear()
+    def set(self, text):
+        self._event.set()
+        self.text = text
             
         
 def detect_image(img):
@@ -89,7 +91,7 @@ if __name__ == "__main__":
                 # cv2.rectangle(frame, (x1, y1-35), (x1+len(cls)*19+60, y1), color, -1)
                 cv2.putText(frame, cls+' '+str(int(id)), (x1, y1 + 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
                 cv2.imwrite('a.jpg', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-
+                process.set('a.jpg')
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     print("Done processing video")
     event.set()
