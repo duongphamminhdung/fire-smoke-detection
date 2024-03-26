@@ -69,7 +69,7 @@ if __name__ == "__main__":
     classes = ["Fire", "Default", "Smoke"]
     frame_height, frame_width, _ = frame.shape
     frame_count = 0
-
+    time_set = time.time()
     while cap.isOpened():
         ret, frame = cap.read()
         frame_count += 1
@@ -91,7 +91,9 @@ if __name__ == "__main__":
                 # cv2.rectangle(frame, (x1, y1-35), (x1+len(cls)*19+60, y1), color, -1)
                 cv2.putText(frame, cls+' '+str(int(id)), (x1, y1 + 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
                 cv2.imwrite('a.jpg', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-                process.set('a.jpg')
+                if time.time() - time_set >= 10:
+                    process.set('a.jpg')
+                    time_set = time.time()
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     print("Done processing video")
     event.set()
